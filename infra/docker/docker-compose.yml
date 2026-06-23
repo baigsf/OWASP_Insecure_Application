@@ -1,0 +1,32 @@
+version: '3'
+
+services:
+  app:
+    # VULNERABILITY: Latest tag
+    image: vulnerable-app:latest
+    # VULNERABILITY: Privileged container
+    privileged: true
+    environment:
+      # VULNERABILITY: Hardcoded secrets
+      DB_PASSWORD: SuperSecretPassword123!
+      API_KEY: sk-1234567890abcdef
+      AWS_SECRET_ACCESS_KEY: wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY
+    ports:
+      - "5000:5000"
+      # VULNERABILITY: Exposing SSH port
+      - "22:22"
+    volumes:
+      # VULNERABILITY: Mounting Docker socket
+      - /var/run/docker.sock:/var/run/docker.sock
+      # VULNERABILITY: Sensitive host path mounted
+      - /etc:/host-etc
+
+  db:
+    image: postgres:9.6
+    environment:
+      # VULNERABILITY: Hardcoded database credentials
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: adminpassword
+      POSTGRES_DB: vulndb
+    ports:
+      - "5432:5432"

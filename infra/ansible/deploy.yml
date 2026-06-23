@@ -1,0 +1,28 @@
+---
+- name: Deploy vulnerable app
+  hosts: all
+  become: yes
+
+  vars:
+    # VULNERABILITY: Hardcoded secrets in playbook
+    db_password: SuperSecretPassword123!
+    api_key: sk-1234567890abcdef
+
+  tasks:
+    # VULNERABILITY: World-writable file
+    - name: Create app directory
+      file:
+        path: /var/app
+        state: directory
+        mode: '0777'
+
+    # VULNERABILITY: Using curl to pipe to shell
+    - name: Install dependencies
+      shell: curl -sSL https://example.com/install.sh | bash
+
+    # VULNERABILITY: Storing secrets in file
+    - name: Write config
+      copy:
+        content: "DB_PASSWORD={{ db_password }}\nAPI_KEY={{ api_key }}\n"
+        dest: /var/app/.env
+        mode: '0644'

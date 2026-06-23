@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Vulnerable Node App</title>
+</head>
+<body>
+    <!-- VULNERABILITY: Reflected XSS via EJS unescaped output -->
+    <h1>Welcome <%- name %></h1>
+    <div><%- message %></div>
+
+    <!-- VULNERABILITY: DOM XSS -->
+    <script>
+        document.write("Hello " + location.search.split('=')[1]);
+    </script>
+
+    <!-- VULNERABILITY: Eval with user-controlled data -->
+    <script>
+        var data = <%- userData %>;
+        eval(data);
+    </script>
+</body>
+</html>

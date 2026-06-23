@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Vulnerable App</title>
+</head>
+<body>
+    <!-- VULNERABILITY: XSS via Jinja2 autoescape disabled -->
+    <h1>Welcome {{ name | safe }}</h1>
+    <div>{{ message | safe }}</div>
+
+    <!-- VULNERABILITY: DOM XSS sink -->
+    <script>
+        document.write("Hello " + location.hash.slice(1));
+    </script>
+
+    <!-- VULNERABILITY: Inline script with user-controlled data -->
+    <script>
+        var userData = {{ user_input | tojson | safe }};
+        eval(userData);
+    </script>
+</body>
+</html>

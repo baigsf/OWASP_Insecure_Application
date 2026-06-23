@@ -1,0 +1,50 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: vulnerable-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: vulnerable-app
+  template:
+    metadata:
+      labels:
+        app: vulnerable-app
+    spec:
+      # VULNERABILITY: Running pod as root
+      securityContext:
+        runAsUser: 0
+        runAsGroup: 0
+      containers:
+      - name: app
+        image: vulnerable-app:latest
+        # VULNERABILITY: Privileged container
+        securityContext:
+          privileged: true
+          allowPrivilegeEscalation: true
+          readOnlyRootFilesystem: false
+          runAsNonRoot: false
+        env:
+        # VULNERABILITY: Hardcoded secrets
+        - name: DB_PASSWORD
+          value: "SuperSecretPassword123!"
+        - name: API_KEY
+          value: "sk-1234567890abcdef"
+        - name: AWS_SECRET_ACCESS_KEY
+          value: "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY"
+        ports:
+        - containerPort: 5000
+        # VULNERABILITY: Mounting Docker socket
+        volumeMounts:
+        - name: docker-sock
+          mountPath: /var/run/docker.sock
+        - name: host-etc
+          mountPath: /host-etc
+      volumes:
+      - name: docker-sock
+        hostPath:
+          path: /var/run/docker.sock
+      - name: host-etc
+        hostPath:
+          path: /etc
